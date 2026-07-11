@@ -1,20 +1,57 @@
 # AI File Assistant
 
-A document-intelligence engine — read, search, summarize, and answer questions about local PDF/DOCX/XLSX/TXT files — exposed through **two interfaces built on the same tested core**:
+A document intelligence system that enables AI agents and users to **read, search, summarize, and answer questions** over local PDF, DOCX, XLSX, and TXT documents.
 
-1. **An MCP server** (`server.py`) for AI agents — Claude Desktop, Claude Code, or any MCP-compatible client can call it as a tool.
-2. **A web app** (`app.py` + browser UI) for humans — a drag-and-drop file browser, keyword search, LLM summarization, and a document Q&A chat, all in the browser.
+The project exposes the same core engine through:
 
-Both interfaces are thin adapters over the same four core modules (`file_readers.py`, `search_engine.py`, `document_processor.py`, `llm_client.py`), so there's exactly one implementation of "how to read a PDF" or "how to rank chunks for a question" — not two copies that can drift apart. That separation is the main engineering idea of this project.
+- 🤖 **MCP Server** for Claude Desktop and other MCP-compatible clients
+- 🌐 **Flask Web Application** for browser-based interaction
 
-Built to demonstrate practical software engineering around an LLM integration, not just a wrapper around an API call: module separation, input validation and path-traversal protection, a swappable LLM backend, retrieval-augmented Q&A without a vector database, and a real test suite (36 tests, both interfaces covered).
+---
 
-## What it looks like
+## Features
 
-The web UI's visual language is a digitized library card catalog: each file gets a colored index tab by type (PDF/DOCX/XLSX/TXT), and a thin scanline sweeps across the preview while a document is being read by the model — a detail that ties the loading state to what's actually happening, rather than a generic spinner.
+- Read PDF, DOCX, XLSX and TXT documents
+- Search keywords across multiple documents
+- AI-powered document summarization
+- Retrieval-Augmented Document Q&A
+- Upload and manage files
+- Delete individual or all documents
+- Secure file access with path validation
+- Claude Desktop MCP integration
 
-Run `python app.py` and open `http://localhost:5000` to see it live.
+---
 
+## 🛠 Tech Stack
+
+| Category | Technologies |
+|----------|--------------|
+| Backend | Python, Flask |
+| MCP | Model Context Protocol (MCP) |
+| AI | Groq Llama / Ollama |
+| Document Parsing | PyMuPDF, python-docx, pandas, openpyxl |
+| Frontend | HTML, CSS, JavaScript |
+| Testing | Pytest |
+
+---
+
+## 🏗 Architecture
+
+```text
+                 Claude Desktop
+                       │
+                       ▼
+                 MCP Server
+                       │
+        ┌──────────────┴──────────────┐
+        │                             │
+   Shared Core Engine            Flask Web App
+        │
+ ├── File Readers
+ ├── Search Engine
+ ├── Document Processor
+ └── LLM Client
+```
 ## 📸 Screenshots
 
 ### 🖥️ User Interface
