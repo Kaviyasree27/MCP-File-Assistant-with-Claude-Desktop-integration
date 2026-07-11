@@ -15,6 +15,84 @@ The web UI's visual language is a digitized library card catalog: each file gets
 
 Run `python app.py` and open `http://localhost:5000` to see it live.
 
+## 📸 Screenshots
+
+### 🖥️ User Interface
+
+Modern web interface for uploading, browsing, and managing supported documents.
+
+<img width="1600" height="884" alt="image" src="https://github.com/user-attachments/assets/1b59456b-2224-430a-8f61-52e47a47d1e7" />
+
+
+### 🔗 MCP Server Connected
+
+Claude Desktop successfully connected to the local MCP File Assistant server.
+
+<img width="1600" height="1135" alt="image" src="https://github.com/user-attachments/assets/181a46ee-2609-486e-8e10-c78f686f3a01" />
+
+---
+
+### 📄 Read Document
+
+Read PDF, DOCX, XLSX, and TXT documents directly through Claude Desktop using MCP.
+
+<img width="1600" height="935" alt="image" src="https://github.com/user-attachments/assets/6c638b40-4417-4385-989f-2d1485b07ad3" />
+<img width="1600" height="936" alt="image" src="https://github.com/user-attachments/assets/adf11f2e-5bba-4b0b-b0f6-3e75a5458552" />
+
+
+
+---
+
+### 📝 AI Document Summarization
+
+Generate concise AI-powered summaries of lengthy documents using Groq Llama.
+
+<img width="1600" height="920" alt="image" src="https://github.com/user-attachments/assets/a973326b-e272-4d58-b116-c769aeb66af4" />
+
+---
+
+### 🔍 Keyword Search
+
+Search keywords across every indexed document with ranked search results.
+
+<img width="1600" height="940" alt="image" src="https://github.com/user-attachments/assets/a6b0323c-4352-46af-95ca-24fd5fa474c6" />
+
+
+---
+
+### ❓ Document Question Answering
+
+Ask natural language questions grounded in document contents using Retrieval-Augmented Generation (RAG).
+
+<img width="1600" height="591" alt="image" src="https://github.com/user-attachments/assets/37fb0755-a70c-4785-b519-5e5c1cc4f8d7" />
+
+
+---
+
+### 🗑️ File Management
+
+Delete individual files or remove all uploaded documents directly from the application.
+
+<img width="1600" height="897" alt="image" src="https://github.com/user-attachments/assets/91548827-f15e-4142-acc0-2ce10f99c229" />
+
+
+---
+
+### 🤖 Claude Desktop MCP Integration
+
+Claude Desktop successfully invokes custom MCP tools including Read, Search, Summarize, and Ask Document.
+
+<img width="1600" height="941" alt="image" src="https://github.com/user-attachments/assets/07e29083-a482-4d10-bc97-a623a285a717" />
+
+
+---
+
+## What it looks like
+
+The web UI's visual language is a digitized library card catalog: each file gets a colored index tab by type (PDF/DOCX/XLSX/TXT), and a thin scanline sweeps across the preview while a document is being read by the model—tying the loading state to what's actually happening rather than showing a generic spinner.
+
+Run `python app.py` and open `http://localhost:5000` to see it live.
+
 ## Why MCP
 
 The Model Context Protocol is the standard Anthropic and others are converging on for connecting AI models to external tools and data sources. Rather than hardcoding document logic into a single chatbot, this project exposes document operations as **MCP tools** — discrete, typed, independently callable functions that any MCP client can use. That means the same server works with Claude Desktop today and with a different agent framework tomorrow, with zero code changes.
