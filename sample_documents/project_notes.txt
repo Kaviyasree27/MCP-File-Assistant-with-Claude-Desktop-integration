@@ -1,0 +1,18 @@
+AI File Assistant - Internal Project Notes
+
+This project was built to demonstrate practical use of the Model Context
+Protocol (MCP) for document intelligence. The assistant can read PDF,
+DOCX, XLSX and TXT files, search across a folder of documents, summarize
+long documents using an LLM, and answer natural-language questions about
+document contents.
+
+Key design goals:
+1. Zero forced paid dependency - works with a free Groq API key or a
+   fully local Ollama model.
+2. Path safety - every file operation is sandboxed to a configured base
+   directory to prevent path traversal.
+3. Realistic retrieval - question answering uses chunk-based relevance
+   ranking rather than dumping entire documents into the prompt.
+
+Budget for this project: 0 dollars (only free-tier services used).
+Timeline: built and shipped within a single week in June 2026.

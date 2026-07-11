@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "file-assistant": {
+      "command": "python",
+      "args": ["C:\\path\\to\\mcp-file-assistant\\server.py"],
+      "env": {
+        "MCP_FILES_BASE_DIR": "C:\\path\\to\\your\\documents",
+        "MCP_LLM_PROVIDER": "groq",
+        "GROQ_API_KEY": "your_groq_api_key_here"
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+# Environment / secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# User-uploaded files via the web UI land in sample_documents/ at runtime;
+# keep the bundled demo files tracked but ignore anything uploaded later.
+# (Remove this section if you'd rather keep uploads out of the repo entirely
+# by pointing MCP_FILES_BASE_DIR at a separate untracked folder instead.)

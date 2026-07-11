@@ -1,0 +1,72 @@
+ABC Technologies Pvt. Ltd.
+Employee Handbook 2026
+
+Welcome to ABC Technologies Pvt. Ltd. This handbook provides information about company policies, employee benefits, work culture, and code of conduct.
+
+Company Information
+ABC Technologies is a software development company specializing in Artificial Intelligence, Cloud Computing, Data Analytics, and Enterprise Software Solutions.
+
+Working Hours
+• Monday to Friday
+• 9:00 AM to 6:00 PM
+• One-hour lunch break
+• Flexible work from home available twice a week.
+
+Leave Policy
+Employees receive:
+• 20 Annual Leave days
+• 10 Sick Leave days
+• 12 Public Holidays
+Unused annual leave can be carried forward for up to 10 days.
+
+Employee Benefits
+The company provides:
+• Health Insurance
+• Life Insurance
+• Performance Bonus
+• Provident Fund
+• Free Technical Certifications
+• Annual Learning Budget of ₹25,000
+
+Training Programs
+Employees are encouraged to complete the following courses:
+• Python Programming
+• Machine Learning Fundamentals
+• Deep Learning
+• Cloud Computing using AWS
+• Cybersecurity Basics
+
+Performance Evaluation
+Employees are evaluated every six months based on:
+• Technical Skills
+• Team Collaboration
+• Communication
+• Innovation
+• Project Delivery
+
+Code of Conduct
+Employees must:
+• Maintain confidentiality of company information.
+• Respect workplace diversity.
+• Avoid harassment or discrimination.
+• Follow cybersecurity best practices.
+• Report security incidents immediately.
+
+IT Security Policy
+Passwords must contain at least 12 characters.
+Multi-factor authentication is mandatory.
+USB storage devices are not allowed without approval.
+Sensitive customer data must be encrypted.
+
+Artificial Intelligence Policy
+Employees may use AI tools such as ChatGPT, Claude, and GitHub Copilot for development tasks. However:
+• Confidential information must never be shared with public AI systems.
+• AI-generated code must be reviewed before deployment.
+• Employees remain responsible for final decisions.
+
+Contact Information
+HR Email: hr@abctech.com
+IT Support: support@abctech.com
+Phone: +91-9876543210
+
+Thank you for being part of ABC Technologies.
