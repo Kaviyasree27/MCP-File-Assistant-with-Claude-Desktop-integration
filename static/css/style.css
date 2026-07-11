@@ -274,12 +274,30 @@ button, input {
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
 }
+.catalog-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .catalog-count {
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
   border-radius: 20px;
   padding: 1px 8px;
 }
+.danger-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: var(--font-body);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+.danger-link-btn:hover { color: var(--accent-red); text-decoration: underline; }
 
 .catalog {
   flex: 1;
@@ -295,6 +313,7 @@ button, input {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 52px;
   padding: 9px 10px 9px 12px;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
@@ -302,6 +321,7 @@ button, input {
   cursor: pointer;
   transition: border-color var(--transition), background var(--transition), transform var(--transition);
   overflow: hidden;
+  flex-shrink: 0;
 }
 .file-card::before {
   content: "";
@@ -331,19 +351,24 @@ button, input {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 .file-card-name {
   font-size: 12.5px;
   font-weight: 500;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .file-card-meta {
   font-size: 10.5px;
+  line-height: 1.3;
   color: var(--text-tertiary);
   font-family: var(--font-display);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .catalog-empty {
@@ -351,6 +376,29 @@ button, input {
   font-size: 12.5px;
   text-align: center;
   padding: 24px 8px;
+}
+
+.file-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: opacity var(--transition), color var(--transition), background var(--transition);
+}
+.file-card:hover .file-delete-btn,
+.file-delete-btn:focus-visible {
+  opacity: 1;
+}
+.file-delete-btn:hover {
+  color: var(--accent-red);
+  background: var(--accent-red-dim);
 }
 
 /* ============================================================

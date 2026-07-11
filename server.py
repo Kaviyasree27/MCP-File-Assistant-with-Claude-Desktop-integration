@@ -21,6 +21,8 @@ from document_processor import answer_question, summarize_document
 from file_readers import (
     PathAccessError,
     UnsupportedFileTypeError,
+    delete_all_files as _delete_all_files,
+    delete_file as _delete_file,
     list_files_in_directory,
     read_file,
 )
@@ -140,6 +142,51 @@ def ask_document(file_path: str, question: str) -> dict:
         return {"error": str(exc)}
     except LLMError as exc:
         return {"error": f"LLM error: {exc}"}
+
+
+@mcp.tool()
+def delete_file(file_path: str) -> dict:
+    """
+    Permanently delete a single file within the allowed base directory.
+    This cannot be undone — there is no recycle bin behavior here.
+
+    Args:
+        file_path: Path to the file to delete, relative to the base directory.
+
+    Returns:
+        A dict confirming what was deleted, or an error message.
+    """
+    try:
+        _delete_file(file_path)
+        return {"deleted": file_path}
+    except (PathAccessError, FileNotFoundError, IsADirectoryError) as exc:
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def delete_all_files(folder_path: str = ".", confirm: bool = False) -> dict:
+    """
+    Permanently delete every supported document in a folder.
+
+    Requires confirm=True as an explicit safety gate — a vague request
+    like "clean up my files" should NOT be enough to trigger this. Only
+    call with confirm=True when the user has clearly and explicitly asked
+    to delete everything.
+
+    Args:
+        folder_path: Folder to clear, relative to the base directory.
+        confirm: Must be explicitly set to True to actually perform the deletion.
+
+    Returns:
+        A dict with the count and list of deleted files, or an error message.
+    """
+    if not confirm:
+        return {"error": "Refusing to delete all files without confirm=True. This is a safety check, not a bug."}
+    try:
+        deleted = _delete_all_files(folder_path, recursive=True)
+        return {"deleted_count": len(deleted), "deleted": deleted}
+    except (PathAccessError, FileNotFoundError) as exc:
+        return {"error": str(exc)}
 
 
 if __name__ == "__main__":

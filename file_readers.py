@@ -159,3 +159,58 @@ def read_file(file_path: str) -> str:
     if not text.strip():
         logger.warning("No extractable text found in %s", path)
     return text
+
+
+def delete_file(file_path: str) -> None:
+    """
+    Permanently delete a single file within the allowed base directory.
+    Raises the same errors as read_file for missing/invalid paths, so
+    callers can handle both with the same except clauses.
+    """
+    path = resolve_safe_path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    if not path.is_file():
+        raise IsADirectoryError(f"Not a file: {file_path}")
+    path.unlink()
+    logger.info("Deleted file: %s", path)
+
+
+def delete_all_files(folder_path: str = ".", recursive: bool = True) -> List[str]:
+    """
+    Delete every supported document under folder_path. Returns the list of
+    relative paths that were deleted. Unsupported files (source code,
+    config files, anything that isn't PDF/DOCX/XLSX/TXT) are left alone
+    even if they happen to live in the same folder — this only ever
+    touches documents, never the project itself.
+    """
+    files = list_files_in_directory(folder_path, recursive)
+    deleted: List[str] = []
+    for f in files:
+        if f.is_supported:
+            path = resolve_safe_path(f.path)
+            try:
+                path.unlink()
+                deleted.append(f.path)
+                logger.info("Deleted file: %s", path)
+            except OSError as exc:
+                logger.warning("Could not delete %s: %s", path, exc)
+    return deleted
+
+
+def unique_destination_path(folder_path: str, filename: str) -> Path:
+    """
+    Given a desired filename, return a path inside folder_path that doesn't
+    collide with an existing file — appending ' (1)', ' (2)', etc. as
+    needed. Used when a caller uploads a file and chooses "keep both"
+    instead of overwriting an existing file with the same name.
+    """
+    base = resolve_safe_path(folder_path)
+    stem = Path(filename).stem
+    suffix = Path(filename).suffix
+    candidate = base / filename
+    counter = 1
+    while candidate.exists():
+        candidate = base / f"{stem} ({counter}){suffix}"
+        counter += 1
+    return candidate

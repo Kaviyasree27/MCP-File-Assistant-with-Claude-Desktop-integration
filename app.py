@@ -18,7 +18,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, jsonify, render_template, request
 from werkzeug.utils import secure_filename
 
 from config import config
@@ -26,8 +26,11 @@ from document_processor import answer_question, summarize_document
 from file_readers import (
     PathAccessError,
     UnsupportedFileTypeError,
+    delete_all_files,
+    delete_file,
     list_files_in_directory,
     read_file,
+    unique_destination_path,
 )
 from llm_client import LLMError
 from search_engine import search_folder
@@ -66,8 +69,14 @@ def health():
 def api_list_files():
     folder = request.args.get("folder", ".")
     recursive = request.args.get("recursive", "true").lower() != "false"
+    # Default to documents only — the catalog is meant to show the user's
+    # PDFs/DOCX/XLSX/TXT files, not project source code that happens to
+    # live under the same base directory. Pass supported_only=false to see everything.
+    supported_only = request.args.get("supported_only", "true").lower() != "false"
     try:
         files = list_files_in_directory(folder, recursive)
+        if supported_only:
+            files = [f for f in files if f.is_supported]
         return jsonify({"files": [f.__dict__ for f in files]})
     except (PathAccessError, FileNotFoundError, NotADirectoryError) as exc:
         return _error_response(exc, 404)
@@ -153,6 +162,17 @@ def api_ask():
 
 @app.route("/api/upload", methods=["POST"])
 def api_upload():
+    """
+    Upload a file into the base directory.
+
+    Duplicate-filename handling: if a file with the same name already
+    exists and the caller hasn't said what to do about it, this returns
+    409 Conflict with the conflicting filename so the UI can ask the user
+    to choose. Pass ?on_duplicate=replace to overwrite, or
+    ?on_duplicate=keep_both to save alongside it with an auto-generated
+    "(1)" suffix. This is deliberately opt-in rather than silently
+    overwriting, since silent overwrites are how people lose work.
+    """
     if "file" not in request.files:
         return _error_response(ValueError("No file part in request"))
     file = request.files["file"]
@@ -166,10 +186,61 @@ def api_upload():
             ValueError(f"Unsupported file type '{ext}'. Allowed: {sorted(config.SUPPORTED_EXTENSIONS)}")
         )
 
-    dest = config.BASE_DIR / filename
+    on_duplicate = request.args.get("on_duplicate", "")  # "" | "replace" | "keep_both"
+    existing = config.BASE_DIR / filename
+
+    if existing.exists() and on_duplicate == "":
+        return (
+            jsonify(
+                {
+                    "conflict": True,
+                    "filename": filename,
+                    "message": f"'{filename}' already exists. Choose replace or keep both.",
+                }
+            ),
+            409,
+        )
+
+    dest = unique_destination_path(".", filename) if (existing.exists() and on_duplicate == "keep_both") else existing
+
     file.save(dest)
     logger.info("Uploaded file saved to %s", dest)
-    return jsonify({"file": filename, "message": "Upload successful"})
+    return jsonify({"file": dest.name, "message": "Upload successful"})
+
+
+@app.route("/api/files", methods=["DELETE"])
+def api_delete_file():
+    """Delete a single file. Path comes from the query string or a JSON body."""
+    path = request.args.get("path") or (request.get_json(silent=True) or {}).get("path")
+    if not path:
+        return _error_response(ValueError("Missing required field: path"))
+    try:
+        delete_file(path)
+        return jsonify({"deleted": path})
+    except (PathAccessError, FileNotFoundError, IsADirectoryError) as exc:
+        return _error_response(exc, 404)
+
+
+@app.route("/api/files/all", methods=["DELETE"])
+def api_delete_all_files():
+    """
+    Delete every supported document in a folder.
+
+    Requires ?confirm=true explicitly — this is a deliberate safety gate,
+    not an oversight, so a single vague request (human or AI-driven) can
+    never wipe a folder by accident.
+    """
+    confirm = request.args.get("confirm", "false").lower() == "true"
+    if not confirm:
+        return _error_response(
+            ValueError("Refusing to delete all files without confirm=true. This is a safety check, not a bug.")
+        )
+    folder = request.args.get("folder", ".")
+    try:
+        deleted = delete_all_files(folder, recursive=True)
+        return jsonify({"deleted_count": len(deleted), "deleted": deleted})
+    except (PathAccessError, FileNotFoundError) as exc:
+        return _error_response(exc, 404)
 
 
 @app.errorhandler(404)

@@ -25,11 +25,6 @@ const API = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path, question }),
     }).then(handle),
-  upload: (file) => {
-    const form = new FormData();
-    form.append("file", file);
-    return fetch("/api/upload", { method: "POST", body: form }).then(handle);
-  },
 };
 
 async function handle(response) {
@@ -105,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindSummarize();
   bindAsk();
   document.getElementById("closeSearchBtn").addEventListener("click", showEmptyOrDoc);
+  document.getElementById("deleteAllBtn").addEventListener("click", deleteAllFiles);
 
   loadHealth();
   loadStats();
@@ -192,9 +188,21 @@ function renderCatalog(files) {
             <span class="file-card-name">${escapeHtml(f.name)}</span>
             <span class="file-card-meta">${formatBytes(f.size_bytes)} · ${f.modified.replace("T", " ")}</span>
           </div>
+          <button class="file-delete-btn" data-path="${escapeHtml(f.path)}" data-name="${escapeHtml(f.name)}" title="Delete ${escapeHtml(f.name)}" aria-label="Delete ${escapeHtml(f.name)}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/>
+            </svg>
+          </button>
         </div>`;
     })
     .join("");
+
+  el.querySelectorAll(".file-delete-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteSingleFile(btn.dataset.path, btn.dataset.name);
+    });
+  });
 
   el.querySelectorAll(".file-card:not(.unsupported)").forEach((card) => {
     card.addEventListener("click", () => openFile(card.dataset.path));
@@ -236,14 +244,78 @@ function bindUpload() {
   });
 }
 
-async function handleUpload(file) {
+async function handleUpload(file, onDuplicate = "") {
   try {
-    await API.upload(file);
-    toast(`Uploaded ${file.name}`);
+    const form = new FormData();
+    form.append("file", file);
+    const qs = onDuplicate ? `?on_duplicate=${onDuplicate}` : "";
+    const response = await fetch(`/api/upload${qs}`, { method: "POST", body: form });
+    const data = await response.json().catch(() => ({}));
+
+    if (response.status === 409 && data.conflict) {
+      const replace = window.confirm(
+        `"${data.filename}" already exists.\n\nOK = Replace it\nCancel = Keep both (uploads as a renamed copy)`
+      );
+      return handleUpload(file, replace ? "replace" : "keep_both");
+    }
+
+    if (!response.ok) throw new Error(data.error || `Upload failed (${response.status})`);
+
+    toast(`Uploaded ${data.file}`);
     await loadCatalog();
     await loadStats();
   } catch (err) {
     toast(`Upload failed: ${err.message}`, "error");
+  }
+}
+
+async function deleteSingleFile(path, name) {
+  const confirmed = window.confirm(`Delete "${name}"? This can't be undone.`);
+  if (!confirmed) return;
+
+  try {
+    const resp = await fetch(`/api/files?path=${encodeURIComponent(path)}`, { method: "DELETE" });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.error || "Delete failed");
+
+    toast(`Deleted ${name}`);
+    if (state.activeFile && state.activeFile.path === path) {
+      state.activeFile = null;
+      showEmptyOrDoc();
+    }
+    await loadCatalog();
+    await loadStats();
+  } catch (err) {
+    toast(`Couldn't delete ${name}: ${err.message}`, "error");
+  }
+}
+
+async function deleteAllFiles() {
+  if (!state.files.length) {
+    toast("There's nothing to delete.");
+    return;
+  }
+  const typed = window.prompt(
+    `This permanently deletes all ${state.files.length} document(s). Type DELETE to confirm.`
+  );
+  if (typed === null) return; // cancelled
+  if (typed !== "DELETE") {
+    toast("Delete-all cancelled — confirmation text didn't match.", "error");
+    return;
+  }
+
+  try {
+    const resp = await fetch(`/api/files/all?confirm=true`, { method: "DELETE" });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.error || "Delete failed");
+
+    toast(`Deleted ${data.deleted_count} file(s)`);
+    state.activeFile = null;
+    showEmptyOrDoc();
+    await loadCatalog();
+    await loadStats();
+  } catch (err) {
+    toast(`Couldn't delete all files: ${err.message}`, "error");
   }
 }
 
